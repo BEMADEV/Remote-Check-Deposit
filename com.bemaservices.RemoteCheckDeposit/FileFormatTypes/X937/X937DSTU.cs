@@ -98,7 +98,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}", order: 10, required: false )]
             //
             records.Add( GetFileHeaderRecord( options) );
             records.Add( GetCashLetterHeaderRecord( options) );
-            records.AddRange( GetBundleRecords( options, transactions ) );
+            records.AddRange( GetBundleRecords( options ) );
             records.Add( GetCashLetterControlRecord( options, records ) );
             records.Add( GetFileControlRecord( options, records ) );
 
@@ -107,17 +107,39 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}", order: 10, required: false )]
             // by the caller.
             //
             var stream = new MemoryStream();
+
+            WritePreContent( options, stream );
+
             using ( var writer = new BinaryWriter( stream, System.Text.Encoding.UTF8, true ) )
             {
                 foreach ( var record in records )
                 {
-                    record.Encode( writer );
+                    WriteRecord( record, writer );
                 }
             }
 
             stream.Position = 0;
 
             return stream;
+        }
+
+        /// <summary>
+        /// Gets pre text records.
+        /// </summary>
+        /// <param name="options">Export options to be used by the component.</param>
+        /// <param name="stream">A Memory Stream.</param>
+        protected virtual void WritePreContent( ExportOptions options, MemoryStream stream )
+        {
+        }
+
+        /// <summary>
+        /// Gets pre text records.
+        /// </summary>
+        /// <param name="options">Export options to be used by the component.</param>
+        /// <param name="stream">A Memory Stream.</param>
+        protected virtual void WriteRecord( Record record, BinaryWriter writer )
+        {
+            record.Encode( writer, true );
         }
 
         #region File Records
@@ -238,6 +260,23 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}", order: 10, required: false )]
         #endregion
 
         #region Bundle Records
+
+        /// <summary>
+        /// Gets the bundle records for the entire export.
+        /// </summary>
+        /// <param name="options">Export options to be used by the component.</param>
+        /// <returns>A collection of records that identify all the exported batches.</returns>
+        protected virtual List<Record> GetBundleRecords( ExportOptions options )
+        {
+            var records = new List<Record>();
+
+            foreach ( var batch in options.Batches )
+            {
+                records.AddRange( GetBundleRecords( options, batch.Transactions.ToList() ) );
+            }
+
+            return records;
+        }
 
         /// <summary>
         /// Gets all the bundle records in required for the transactions specified.
@@ -554,7 +593,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}", order: 10, required: false )]
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <returns></returns>
-        protected Stream ConvertImageToTiffG4( Stream imageStream )
+        protected virtual Stream ConvertImageToTiffG4( Stream imageStream )
         {
             var bitmap = new Bitmap( imageStream );
 

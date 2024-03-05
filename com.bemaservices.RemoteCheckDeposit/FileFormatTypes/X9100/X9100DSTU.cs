@@ -567,7 +567,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}", order: 10, required: false)]
         /// </summary>
         /// <param name="imageStream">The image stream.</param>
         /// <returns></returns>
-        protected Stream ConvertImageToTiffG4(Stream imageStream)
+        protected virtual Stream ConvertImageToTiffG4(Stream imageStream)
         {
             var bitmap = new Bitmap(imageStream);
 
