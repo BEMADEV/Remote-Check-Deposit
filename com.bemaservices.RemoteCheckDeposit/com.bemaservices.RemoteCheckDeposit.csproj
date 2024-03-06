@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BitMiracle.LibTiff.NET, Version=2.4.649.0, Culture=neutral, PublicKeyToken=53879b3e20e7a7d6, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\BitMiracle.LibTiff.NET.dll</HintPath>
+    </Reference>
     <Reference Include="DotLiquid">
       <HintPath>$(SolutionDir)RockWeb\Bin\DotLiquid.dll</HintPath>
     </Reference>
@@ -192,7 +196,7 @@
   <!-- Prepare the files to be zipped -->
   <Target Name="CopyFiles" DependsOnTargets="DeleteFiles">
     <ItemGroup>
-      <CopyFiles Include="$(OutputPath)com.bemaservices.RemoteCheckDeposit.dll;" />
+      <CopyFiles Include="$(OutputPath)com.bemaservices.RemoteCheckDeposit.dll;$(OutputPath)BitMiracle.LibTiff.NET.dll;" />
       <BlockCode Include="$(ProjectDir)Plugins\com_bemaservices\RemoteCheckDeposit\**\*.*" />
       <VersionFile Include="builds\.version" />
     </ItemGroup>
@@ -259,6 +263,7 @@
   </Target>
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y /R /E /I "$(ProjectDir)Plugins" "$(SolutionDir)RockWeb\Plugins"
-xcopy /Y /R "$(ProjectDir)bin\Debug\com.bemaservices.RemoteCheckDeposit.dll" "$(SolutionDir)RockWeb\bin"</PostBuildEvent>
+xcopy /Y /R "$(ProjectDir)bin\Debug\com.bemaservices.RemoteCheckDeposit.dll" "$(SolutionDir)RockWeb\bin"
+xcopy /Y /R "$(ProjectDir)bin\Debug\BitMiracle.LibTiff.NET.dll" "$(SolutionDir)RockWeb\bin"</PostBuildEvent>
   </PropertyGroup>
 </Project>
