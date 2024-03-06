@@ -88,6 +88,7 @@
     <Compile Include="FileFormatTypes\X9100\X9100V2DSTU.cs" />
     <Compile Include="FileFormatTypes\X937\BankOfAmericaMerrillLynch.cs" />
     <Compile Include="FileFormatTypes\X937\BankOfAmerica_2021.cs" />
+    <Compile Include="FileFormatTypes\X937\BankOfOklahoma.cs" />
     <Compile Include="FileFormatTypes\X937\BMO.cs" />
     <Compile Include="FileFormatTypes\X937\BankOfTheWest.cs" />
     <Compile Include="FileFormatTypes\X937\BBandT.cs" />
@@ -99,10 +100,12 @@
     <Compile Include="FileFormatTypes\X937\FifthThirdBank.cs" />
     <Compile Include="FileFormatTypes\X937\FrostBank.cs" />
     <Compile Include="FileFormatTypes\X937\MandT.cs" />
+    <Compile Include="FileFormatTypes\X937\NationalBankOfArizona.cs" />
     <Compile Include="FileFormatTypes\X937\PNC.cs" />
     <Compile Include="FileFormatTypes\X937\Regions.cs" />
     <Compile Include="FileFormatTypes\X937\SouthernFirstBank.cs" />
     <Compile Include="FileFormatTypes\X937\Synovus.cs" />
+    <Compile Include="FileFormatTypes\X937\WellsFargo.cs" />
     <Compile Include="FileFormatTypes\X937\WheatonBank.cs" />
     <Compile Include="FileFormatTypes\X937\WintrustFinancial.cs" />
     <Compile Include="FileFormatTypes\X9100\X9100DSTU.cs" />
