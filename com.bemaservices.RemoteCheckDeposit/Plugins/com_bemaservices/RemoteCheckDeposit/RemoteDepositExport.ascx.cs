@@ -185,12 +185,12 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
         /// </summary>
         private void BindBatchesFilter()
         {
-            string titleFilter = gfBatches.GetUserPreference( "Title" );
+            string titleFilter = gfBatches.GetFilterPreference( "Title" );
             tbTitle.Text = !string.IsNullOrWhiteSpace( titleFilter ) ? titleFilter : string.Empty;
 
             ddlStatus.BindToEnum<BatchStatus>();
             ddlStatus.Items.Insert( 0, Rock.Constants.All.ListItem );
-            string statusFilter = gfBatches.GetUserPreference( "Status" );
+            string statusFilter = gfBatches.GetFilterPreference( "Status" );
             if ( string.IsNullOrWhiteSpace( statusFilter ) )
             {
                 statusFilter = BatchStatus.Closed.ConvertToInt().ToString();
@@ -200,14 +200,14 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
             var campuses = CampusCache.All();
             campCampus.Campuses = campuses;
             campCampus.Visible = campuses.Any();
-            campCampus.SetValue( gfBatches.GetUserPreference( "Campus" ) );
+            campCampus.SetValue( gfBatches.GetFilterPreference( "Campus" ) );
 
-            drpBatchDate.DelimitedValues = gfBatches.GetUserPreference( "Date Range" );
-            drpExportDate.DelimitedValues = gfBatches.GetUserPreference( "Export Date Range" );
+            drpBatchDate.DelimitedValues = gfBatches.GetFilterPreference( "Date Range" );
+            drpExportDate.DelimitedValues = gfBatches.GetFilterPreference( "Export Date Range" );
 
             ddlDeposited.BindToEnum<IsDeposited>();
             ddlDeposited.Items.Insert( 0, Rock.Constants.All.ListItem );
-            string depositedFilter = gfBatches.GetUserPreference( "Deposited" );
+            string depositedFilter = gfBatches.GetFilterPreference( "Deposited" );
             if ( string.IsNullOrWhiteSpace( depositedFilter ) )
             {
                 depositedFilter = IsDeposited.No.ConvertToInt().ToString();
@@ -230,7 +230,7 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
                 .Where( b => b.BatchStartDateTime.HasValue );
 
             // filter by date
-            string dateRangeValue = gfBatches.GetUserPreference( "Date Range" );
+            string dateRangeValue = gfBatches.GetFilterPreference( "Date Range" );
             if ( !string.IsNullOrWhiteSpace( dateRangeValue ) )
             {
                 var drp = new DateRangePicker();
@@ -248,7 +248,7 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
             }
 
             // filter by export date
-            string exportDateRangeValue = gfBatches.GetUserPreference( "Export Date Range" );
+            string exportDateRangeValue = gfBatches.GetFilterPreference( "Export Date Range" );
             if ( !string.IsNullOrWhiteSpace( exportDateRangeValue ) )
             {
                 var drp = new DateRangePicker();
@@ -266,27 +266,27 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
             }
 
             // filter by status
-            var status = gfBatches.GetUserPreference( "Status" ).ConvertToEnumOrNull<BatchStatus>();
+            var status = gfBatches.GetFilterPreference( "Status" ).ConvertToEnumOrNull<BatchStatus>();
             if ( status.HasValue )
             {
                 qry = qry.Where( b => b.Status == status );
             }
 
             // filter by title
-            string title = gfBatches.GetUserPreference( "Title" );
+            string title = gfBatches.GetFilterPreference( "Title" );
             if ( !string.IsNullOrEmpty( title ) )
             {
                 qry = qry.Where( batch => batch.Name.Contains( title ) );
             }
 
             // filter by campus
-            var campus = CampusCache.Get( gfBatches.GetUserPreference( "Campus" ).AsInteger() );
+            var campus = CampusCache.Get( gfBatches.GetFilterPreference( "Campus" ).AsInteger() );
             if ( campus != null )
             {
                 qry = qry.Where( b => b.CampusId == campus.Id );
             }
 
-            var deposited = gfBatches.GetUserPreference( "Deposited" ).ConvertToEnumOrNull<IsDeposited>();
+            var deposited = gfBatches.GetFilterPreference( "Deposited" ).ConvertToEnumOrNull<IsDeposited>();
 
             if ( deposited.HasValue )
             {
@@ -439,7 +439,7 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
                         CheckNumber = checkNumber,
                         IsBankCheck = isBankCheck,
                         Amount = transaction.TotalAmount,
-                        ImageUrl = transaction.Images.FirstOrDefault().IsNotNull() ? transaction.Images.First().BinaryFile.Url : "",
+                        ImageUrl = transaction.Images.FirstOrDefault() != null ? transaction.Images.First().BinaryFile.Url : "",
                         IsValid = ( isValid && hasImages ),
                         IsValidMessage = errors.AsDelimited( "<br/>" )
                     };
@@ -618,12 +618,12 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void gfBatches_ApplyFilterClick( object sender, EventArgs e )
         {
-            gfBatches.SaveUserPreference( "Date Range", drpBatchDate.DelimitedValues );
-            gfBatches.SaveUserPreference( "Export Date Range", drpExportDate.DelimitedValues );
-            gfBatches.SaveUserPreference( "Title", tbTitle.Text );
-            gfBatches.SaveUserPreference( "Status", ddlStatus.SelectedValue );
-            gfBatches.SaveUserPreference( "Campus", campCampus.SelectedValue );
-            gfBatches.SaveUserPreference( "Deposited", ddlDeposited.SelectedValue );
+            gfBatches.SetFilterPreference( "Date Range", drpBatchDate.DelimitedValues );
+            gfBatches.SetFilterPreference( "Export Date Range", drpExportDate.DelimitedValues );
+            gfBatches.SetFilterPreference( "Title", tbTitle.Text );
+            gfBatches.SetFilterPreference( "Status", ddlStatus.SelectedValue );
+            gfBatches.SetFilterPreference( "Campus", campCampus.SelectedValue );
+            gfBatches.SetFilterPreference( "Deposited", ddlDeposited.SelectedValue );
 
             BindBatchesGrid();
         }
@@ -635,7 +635,7 @@ namespace RockWeb.Plugins.com_bemaservices.RemoteCheckDeposit
         /// <param name="e">The <see cref="EventArgs"/> instance containing the event data.</param>
         protected void gfBatches_ClearFilterClick( object sender, EventArgs e )
         {
-            gfBatches.DeleteUserPreferences();
+            gfBatches.DeleteFilterPreferences();
             BindBatchesFilter();
         }
 
