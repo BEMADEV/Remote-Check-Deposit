@@ -196,6 +196,12 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
             checkDetail.ElectronicReturnAcceptanceIndicator = "0";
             checkDetail.MICRValidIndicator = 1; //Added 9/27/19 due to feedback from 5/3
 
+            // Feedback from Sugar Creek on 12/31/2024: Change BOFD indicator from Y to N.
+            foreach ( var checkDetailRecord in records.Where( r => r.RecordType == 25 ).Cast<Records.X937.CheckDetail>() )
+            {
+                checkDetailRecord.BankOfFirstDepositIndicator = "N";
+            }            
+
             //Modify Check Detail Adden A
             var checkDetailA = records.Where( r => r.RecordType == 26 ).Cast<Records.X937.CheckDetailAddendumA>().FirstOrDefault();
             checkDetailA.TruncationIndicator = "Y";

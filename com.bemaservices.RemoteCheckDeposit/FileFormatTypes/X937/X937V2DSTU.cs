@@ -108,6 +108,13 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "N",
         Order = 1,
         Category = "Bank of First Deposit Fields" )]
+    [EncryptedTextField( "Return Location Routing Number",
+        Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
+        Key = AttributeKey.ReturnLocationRoutingNumber,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 0,
+        Category = "Bank of First Deposit Fields" )]
 
     // Credit Deposit Settings
     [EnumField( "Credit Record Type",
@@ -208,6 +215,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             // Bank of First Deposit Settings
             public const string BOFDRoutingNumber = "BOFDRoutingNumber";
             public const string TruncationIndicator = "TruncationIndicator";
+            public const string ReturnLocationRoutingNumber = "ReturnLocationRoutingNumber";
 
             // Credit Deposit Settings
             public const string CreditRecordType = "CreditRecordType";
@@ -549,11 +557,19 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         /// <returns>A BundleHeader record.</returns>
         protected virtual Records.X937.BundleHeader GetBundleHeader( ExportOptions options, int bundleIndex )
         {
+            string returnLocationRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ReturnLocationRoutingNumber ) );
+
             string destinationRoutingNumber = GetValueWithFallback( options, AttributeKey.DestinationRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
-            if ( institutionRoutingNumber.IsNullOrWhiteSpace() )
+
+            if ( returnLocationRoutingNumber.IsNullOrWhiteSpace() )
             {
-                institutionRoutingNumber = destinationRoutingNumber;
+                if ( institutionRoutingNumber.IsNullOrWhiteSpace() )
+                {
+                    institutionRoutingNumber = destinationRoutingNumber;
+                }
+
+                returnLocationRoutingNumber = institutionRoutingNumber;
             }
 
             var header = new Records.X937.BundleHeader
@@ -566,7 +582,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 ID = ( bundleIndex + 1 ).ToString(),
                 SequenceNumber = ( bundleIndex + 1 ).ToString(),
                 CycleNumber = string.Empty,
-                ReturnLocationRoutingNumber = destinationRoutingNumber
+                ReturnLocationRoutingNumber = returnLocationRoutingNumber
             };
 
             return header;
