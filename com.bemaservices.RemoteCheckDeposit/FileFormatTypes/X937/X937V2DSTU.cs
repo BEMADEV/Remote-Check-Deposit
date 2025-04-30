@@ -68,6 +68,14 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "",
         Order = 1,
         Category = "Destination Fields" )]
+    // Prosperity Bank requires account number in field 5
+    [EncryptedTextField( "Account Number",
+        Description = "Account number for deposit.",
+        Key = AttributeKey.ObsoleteAccountNumber,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 2,
+        Category = "Destination Fields" )]
 
     // ECE Institution Settings
     [EncryptedTextField( "Institution Name",
@@ -132,11 +140,20 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "20",
         Order = 1,
         Category = "Credit Deposit Settings" )]
+    // Prosperity Bank requires account number in field 5
+    [CustomRadioListField( "Credit Record Field 5 Number",
+        Description = "Whether Field 5: On-Us should use the routing number or account number",
+        Key = AttributeKey.CreditRecordOnUsNumber,
+        ListSource = "Routing Number,Account Number",
+        DefaultValue = "Routing Number",
+        Order = 2,
+        IsRequired = true,
+        Category = "Credit Deposit Settings" )]
     [CodeEditorField( "Deposit Slip Template",
         Description = "The template for the deposit slip that will be generated. <span class='tip tip-lava'></span>",
         Key = AttributeKey.DepositSlipTemplate,
         EditorMode = CodeEditorMode.Lava,
-        Order = 2,
+        Order = 4,
         IsRequired = false,
         Category = "Credit Deposit Settings",
         DefaultValue = @"Customer: {{ FileFormat | Attribute:'OriginName' }}
@@ -206,6 +223,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             // Destination Settings
             public const string DestinationName = "DestinationName";
             public const string DestinationRoutingNumber = "DestinationRoutingNumber";
+            public const string DestinationAccountNumber = "DestinationAccountNumber";
 
             // ECE Institution Settings
             public const string InstitutionName = "InstitutionName";
@@ -220,6 +238,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             // Credit Deposit Settings
             public const string CreditRecordType = "CreditRecordType";
             public const string CreditDepositCheckNumber = "CreditDepositCheckNumber";
+            public const string CreditRecordOnUsNumber = "CreditRecordOnUsNumber";
             public const string DepositSlipTemplate = "DepositSlipTemplate";
 
             // MICR Settings
@@ -601,6 +620,13 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             var creditDetailRecordType = GetAttributeValue( options.FileFormat, AttributeKey.CreditRecordType ).ConvertToEnum<CreditDetailRecordType>( CreditDetailRecordType.None );
             var creditDepositCheckNumber = GetAttributeValue( options.FileFormat, AttributeKey.CreditDepositCheckNumber );
+            var creditRecordOnUsNumber = GetAttributeValue ( options.FileFormat, AttributeKey.CreditRecordOnUsNumber );
+
+            // Prosperity Bank requires account number in field 5
+            if ( creditRecordOnUsNumber == "Account Number" )
+            {
+                originRoutingNumber = GetValueWithFallback( options, AttributeKey.ObsoleteAccountNumber, AttributeKey.OriginRoutingNumber );
+            }
 
             var records = new List<Record>();
 
@@ -642,6 +668,30 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                                                           //SourceOfWork = string.Empty, // Field value must be "2" space or "02" meaning internal - branch
                     };
                     records.Add( creditReconciliation );
+                }
+
+                // Created for Prosperity bank for Austin Ridge
+                if ( creditDetailRecordType == CreditDetailRecordType.Type25 )
+                {
+                    var detail = new Records.X937.CheckDetail
+                    {
+                        AuxiliaryOnUs = "               ", // Field 2 blank fill Length 15
+                        ExternalProcessingCode = " ",// Field 3 Blank Fill Length 1
+                        PayorBankRoutingNumber = institutionRoutingNumber.Substring( 0, 8 ), // Field 4 Bank Routing Number except last digit Length 8 
+                        PayorBankRoutingNumberCheckDigit = institutionRoutingNumber.Right(1), // Field 5 last digit of the bank routing number Length 1
+                        OnUs = originRoutingNumber + "/" + creditDepositCheckNumber, // Field 6 Prosperity requires this to be the Church Account Number / 191 (191 is customizable)
+                        ItemAmount = itemAmount, //Field 7 Deposit Total
+                        ClientInstitutionItemSequenceNumber = sequenceNumber, // Field 8 Not used, Blank fill Length 15
+                        DocumentationTypeIndicator = "G", // Field 9 "G"
+                        ElectronicReturnAcceptanceIndicator = "0", // Field 10 "0"
+                        MICRValidIndicator = 1, // Field 11 "1"
+                        BankOfFirstDepositIndicator = "Y", // Field 12 "Y"
+                        CheckDetailRecordAddendumCount = 00, // Field 13 "00"
+                        CorrectionIndicator = "0", //Field 14 "0"
+                        ArchiveTypeIndicator = "B" //Field 15 "B or F"
+
+                    };
+                    records.Add( detail );
                 }
 
                 for ( int i = 0; i < 2; i++ )
@@ -1086,6 +1136,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
     {
         None = 0,
         Type61 = 1,
-        Type61A = 2
+        Type61A = 2,
+        Type25 = 3
     }
 }
