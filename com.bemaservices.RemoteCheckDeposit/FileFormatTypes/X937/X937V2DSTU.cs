@@ -252,9 +252,9 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
 
             // Bundle Header Settings
             public const string SequenceNumberMinimumBundles = "SequenceNumberMinimumBundles";
-
-            // Specific Routing Numbers
             public const string ReturnLocationRoutingNumber = "ReturnLocationRoutingNumber";
+
+            // Image View Detail Numbers
             public const string ImageCreatorRoutingNumber = "ImageCreatorRoutingNumber";
 
             // Credit Deposit Settings
@@ -630,7 +630,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 BusinessDate = options.BusinessDateTime,
                 CreationDate = options.ExportDateTime,
                 ID = ( bundleIndex + 1 ).ToString(),
-                SequenceNumber = ( bundleIndex + 1 ).ToString(),
+                SequenceNumber = sequenceNumber,
                 CycleNumber = string.Empty,
                 ReturnLocationRoutingNumber = returnLocationRoutingNumber
             };
