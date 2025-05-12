@@ -30,28 +30,28 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = "Origin Fields" )]
+        Category = Category.OriginFields )]
     [TextField( "Origin Contact Name",
         Description = "The name of the person the bank will contact if there are issues.",
         Key = AttributeKey.OriginContactName,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = "Origin Fields" )]
+        Category = Category.OriginFields )]
     [TextField( "Origin Contact Phone",
         Description = "The phone number the bank will call if there are issues.",
         Key = AttributeKey.OriginContactPhone,
         IsRequired = false,
         DefaultValue = "",
         Order = 2,
-        Category = "Origin Fields" )]
+        Category = Category.OriginFields )]
     [EncryptedTextField( "Origin Routing Number",
         Description = "Your origin routing number.",
         Key = AttributeKey.OriginRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 3,
-        Category = "Origin Fields" )]
+        Category = Category.OriginFields )]
 
     // Destination Settings
     [TextField( "Destination Name",
@@ -60,14 +60,14 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = "Destination Fields" )]
+        Category = Category.DestinationFields )]
     [EncryptedTextField( "Destination Routing Number",
         Description = "The destination routing number.",
         Key = AttributeKey.DestinationRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = "Destination Fields" )]
+        Category = Category.DestinationFields )]
 
     // ECE Institution Settings
     [EncryptedTextField( "Institution Name",
@@ -76,14 +76,14 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = "ECE Institution Fields" )]
+        Category = Category.EceInstitutionFields )]
     [EncryptedTextField( "ECE Institution Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the origin routing number",
         Key = AttributeKey.InstitutionRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = "ECE Institution Fields" )]
+        Category = Category.EceInstitutionFields )]
     [CustomRadioListField( "Item Sequence Number Justification",
         Description = "Whether the Item Sequence Number should be Right or Left Justified. The default for most banks is right-justified.",
         Key = AttributeKey.ItemSequenceNumberJustification,
@@ -91,7 +91,7 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "Right",
         Order = 2,
         IsRequired = true,
-        Category = "ECE Institution Fields" )]
+        Category = Category.EceInstitutionFields )]
 
     // BOFD Settings
     [EncryptedTextField( "BOFD Routing Number",
@@ -100,14 +100,14 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = "Bank of First Deposit Fields" )]
+        Category = Category.BofdFields )]
     [TextField( "Truncation Indicator",
         Description = "The Default for this value is 'N', but some banks require 'Y'.",
         Key = AttributeKey.TruncationIndicator,
         IsRequired = false,
         DefaultValue = "N",
         Order = 1,
-        Category = "Bank of First Deposit Fields" )]
+        Category = Category.BofdFields )]
 
     // Specific Routing Numbers
     [EncryptedTextField( "Return Location Routing Number",
@@ -116,14 +116,14 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = "Specific Routing Number Fields" )]
+        Category = Category.SpecificRoutingNumberFields )]
     [EncryptedTextField( "Image Creator Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
         Key = AttributeKey.ReturnLocationRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = "Specific Routing Number Fields" )]
+        Category = Category.SpecificRoutingNumberFields )]
 
     // Credit Deposit Settings
     [EnumField( "Credit Record Type",
@@ -133,21 +133,21 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         Order = 0,
         EnumSourceType = typeof( CreditDetailRecordType ),
         DefaultEnumValue = ( int ) CreditDetailRecordType.None,
-        Category = "Credit Deposit Settings" )]
+        Category = Category.CreditDepositSettings )]
     [IntegerField( "Credit Deposit Check Number",
         Description = "The check number to be appended onto the end of File Type 61 Field 5: On-Us. The Default is 20.",
         Key = AttributeKey.CreditDepositCheckNumber,
         IsRequired = false,
         DefaultValue = "20",
         Order = 1,
-        Category = "Credit Deposit Settings" )]
+        Category = Category.CreditDepositSettings )]
     [CodeEditorField( "Deposit Slip Template",
         Description = "The template for the deposit slip that will be generated. <span class='tip tip-lava'></span>",
         Key = AttributeKey.DepositSlipTemplate,
         EditorMode = CodeEditorMode.Lava,
         Order = 2,
         IsRequired = false,
-        Category = "Credit Deposit Settings",
+        Category = Category.CreditDepositSettings,
         DefaultValue = @"Customer: {{ FileFormat | Attribute:'OriginName' }}
 CICL-{{ FileFormat | Attribute:'AccountNumber' }}
 Account: {{ FileFormat | Attribute:'AccountNumber' }}
@@ -161,13 +161,13 @@ ItemCount: {{ ItemCount }}" )]
         IsRequired = true,
         Order = 0,
         DefaultIntegerValue = 3,
-        Category = "MICR Settings" )]
+        Category = Category.MicrSettings )]
     [IntegerField( "Maximum Check Number Digits",
         Description = "The maximum number of digits a check number can have before it is moved from Field 6 On-Us to Field 1 Aux On-Us. Default is blank.",
         Key = AttributeKey.MaximumCheckNumberDigits,
         IsRequired = false,
         Order = 1,
-        Category = "MICR Settings" )]
+        Category = Category.MicrSettings )]
 
     // Rock Settings
     [BooleanField( "Test Mode",
@@ -175,7 +175,7 @@ ItemCount: {{ ItemCount }}" )]
         Key = AttributeKey.TestMode,
         IsRequired = true,
         Order = 0,
-        Category = "Rock Settings" )]
+        Category = Category.RockSettings )]
     [DefinedValueField( "Currency Types To Export",
         DefinedTypeGuid = "1D1304DE-E83A-44AF-B11D-0C66DD600B81",
         Description = "Select which check types are valid to send in batches to export (Defaults to Checks)",
@@ -184,25 +184,40 @@ ItemCount: {{ ItemCount }}" )]
         IsRequired = true,
         DefaultValue = "8B086A19-405A-451F-8D44-174E92D6B402",
         Order = 1,
-        Category = "Rock Settings" )]
+        Category = Category.RockSettings )]
     [BooleanField( "Enable Digital Endorsement",
         Description = "Prints text on the back of the check digitally, as an endoresment of the check",
         Key = AttributeKey.EnableDigitalEndorsement,
         DefaultBooleanValue = false,
         Order = 2,
-        Category = "Rock Settings" )]
+        Category = Category.RockSettings )]
     [CodeEditorField( "Check Endorsement Template",
         Description = "The template for the back of check endorsement. <span class='tip tip-lava'></span>",
         Key = AttributeKey.CheckEndorsementTemplate,
         EditorMode = CodeEditorMode.Lava,
         Order = 3,
         IsRequired = false,
-        Category = "Rock Settings",
+        Category = Category.RockSettings,
         DefaultValue = @"{{ FileFormat | Attribute:'OriginName' }}
 Account: {{ FileFormat | Attribute:'AccountNumber' }}
 Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
     public abstract class X937V2DSTU : FileFormatTypeComponent
     {
+        #region Attribute Keys
+        private static class Category
+        {
+            public const string BofdFields = "Bank of First Deposit Fields";
+            public const string BundleHeaderSettings = "Bundle Header Settings";
+            public const string CreditDepositSettings = "Credit Deposit Settings";
+            public const string DestinationFields = "Destination Fields";
+            public const string EceInstitutionFields = "ECE Institution Fields";
+            public const string MicrSettings = "MICR Settings";
+            public const string OriginFields = "Origin Fields";
+            public const string RockSettings = "Rock Settings";
+            public const string SpecificRoutingNumberFields = "Specific Routing Number Fields";
+        }
+        #endregion
+
         #region Attribute Keys
         private static class AttributeKey
         {
