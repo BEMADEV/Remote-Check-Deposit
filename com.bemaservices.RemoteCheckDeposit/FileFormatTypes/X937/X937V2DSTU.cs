@@ -108,7 +108,7 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "N",
         Order = 1,
         Category = Category.BofdFields )]
-    
+
     // Bundle Header Settings
     [IntegerField( "Sequence Number Minimum Bundles",
         Description = "The minimum number of bundles to display a Bundle Sequence Number. This is defined by your bank, but is typically 1. Set to 0 to always leave this field blank.",
@@ -144,18 +144,39 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         EnumSourceType = typeof( CreditDetailRecordType ),
         DefaultEnumValue = ( int ) CreditDetailRecordType.None,
         Category = Category.CreditDepositSettings )]
+    [EncryptedTextField( "Payor Bank Routing Number",
+        Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
+        Key = AttributeKey.PayorBankRoutingNumber,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 1,
+        Category = Category.CreditDepositSettings )]
+    [EncryptedTextField( "On-Us Account Number",
+        Description = "This is defined by your bank, it is typically but not always the same as the origin routing number",
+        Key = AttributeKey.OnUsAccountNumber,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 2,
+        Category = Category.CreditDepositSettings )]
     [IntegerField( "Credit Deposit Check Number",
         Description = "The check number to be appended onto the end of File Type 61 Field 5: On-Us. The Default is 20.",
         Key = AttributeKey.CreditDepositCheckNumber,
         IsRequired = false,
         DefaultValue = "20",
-        Order = 1,
+        Order = 3,
+        Category = Category.CreditDepositSettings )]
+    [IntegerField( "Source of Work Code",
+        Description = "The Source Of Work code represented by File Type 61 Field 10: On-Us. The Default is blank.",
+        Key = AttributeKey.SourceOfWorkCode,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 4,
         Category = Category.CreditDepositSettings )]
     [CodeEditorField( "Deposit Slip Template",
         Description = "The template for the deposit slip that will be generated. <span class='tip tip-lava'></span>",
         Key = AttributeKey.DepositSlipTemplate,
         EditorMode = CodeEditorMode.Lava,
-        Order = 2,
+        Order = 5,
         IsRequired = false,
         Category = Category.CreditDepositSettings,
         DefaultValue = @"Customer: {{ FileFormat | Attribute:'OriginName' }}
@@ -259,7 +280,10 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
 
             // Credit Deposit Settings
             public const string CreditRecordType = "CreditRecordType";
+            public const string PayorBankRoutingNumber = "PayorBankRoutingNumber";
+            public const string OnUsAccountNumber = "OnUsAccountNumber";
             public const string CreditDepositCheckNumber = "CreditDepositCheckNumber";
+            public const string SourceOfWorkCode = "SourceOfWorkCode";
             public const string DepositSlipTemplate = "DepositSlipTemplate";
 
             // MICR Settings
@@ -617,7 +641,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             var minimumBundleCount = GetAttributeValue( options.FileFormat, AttributeKey.SequenceNumberMinimumBundles ).AsInteger();
             var sequenceNumber = ( bundleIndex + 1 ).ToString();
 
-            if( minimumBundleCount == 0 || minimumBundleCount > bundleCount )
+            if ( minimumBundleCount == 0 || minimumBundleCount > bundleCount )
             {
                 sequenceNumber = string.Empty;
             }
@@ -651,11 +675,24 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             var creditDetailRecordType = GetAttributeValue( options.FileFormat, AttributeKey.CreditRecordType ).ConvertToEnum<CreditDetailRecordType>( CreditDetailRecordType.None );
             var creditDepositCheckNumber = GetAttributeValue( options.FileFormat, AttributeKey.CreditDepositCheckNumber );
+            var sourceOfWorkCode = GetAttributeValue( options.FileFormat, AttributeKey.SourceOfWorkCode ).AsIntegerOrNull();
 
             string imageCreatorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ImageCreatorRoutingNumber ) );
             if ( imageCreatorRoutingNumber.IsNullOrWhiteSpace() )
             {
                 imageCreatorRoutingNumber = institutionRoutingNumber;
+            }
+
+            string payorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.PayorBankRoutingNumber ) );
+            if ( payorRoutingNumber.IsNullOrWhiteSpace() )
+            {
+                payorRoutingNumber = institutionRoutingNumber;
+            }
+
+            string onUsAccountNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.OnUsAccountNumber ) );
+            if ( onUsAccountNumber.IsNullOrWhiteSpace() )
+            {
+                onUsAccountNumber = originRoutingNumber;
             }
 
             var records = new List<Record>();
@@ -671,14 +708,20 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                     {
                         AuxiliaryOnUs = string.Empty,
                         ExternalProcessingCode = string.Empty,
-                        PayorRoutingNumber = institutionRoutingNumber,
-                        CreditAccountNumber = originRoutingNumber + "/" + creditDepositCheckNumber,
+                        PayorRoutingNumber = payorRoutingNumber,
+                        CreditAccountNumber = onUsAccountNumber + "/" + creditDepositCheckNumber,
                         Amount = itemAmount,
                         InstitutionItemSequenceNumber = sequenceNumber, // A number assigned by you that uniquely identifies the item in the cash letter
                         DocumentTypeIndicator = "G", // Field value must be "G" - Meaning there are 2 images present.
                         DebitCreditIndicator = "2"
 
                     };
+
+                    if ( sourceOfWorkCode != null )
+                    {
+                        creditDetail.SourceOfWorkCode = sourceOfWorkCode.ToStringSafe();
+                    }
+
                     records.Add( creditDetail );
                 }
 
@@ -862,7 +905,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             string originRoutingNumber = GetValueWithFallback( options, AttributeKey.OriginRoutingNumber, AttributeKey.ObsoleteAccountNumber );
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             string bofdRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.BOFDRoutingNumber ) );
-            var sequenceNumber = GetNextItemSequenceNumber();
+            var sequenceNumber = GetNextItemSequenceNumber().ToString( "000000000000000" );
 
             int minimumCheckNumberDigits = GetAttributeValue( options.FileFormat, AttributeKey.MinimumCheckNumberDigits ).AsIntegerOrNull() ?? 3;
             int? maximumCheckNumberDigits = GetAttributeValue( options.FileFormat, AttributeKey.MaximumCheckNumberDigits ).AsIntegerOrNull();
