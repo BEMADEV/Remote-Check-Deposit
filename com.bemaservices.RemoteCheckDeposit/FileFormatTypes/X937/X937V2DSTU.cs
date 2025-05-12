@@ -108,6 +108,15 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "N",
         Order = 1,
         Category = Category.BofdFields )]
+    
+    // Bundle Header Settings
+    [IntegerField( "Sequence Number Minimum Bundles",
+        Description = "The minimum number of bundles to display a Bundle Sequence Number. This is defined by your bank, but is typically 1. Set to 0 to always leave this field blank.",
+        Key = AttributeKey.SequenceNumberMinimumBundles,
+        IsRequired = false,
+        DefaultValue = "1",
+        Order = 0,
+        Category = Category.BundleHeaderSettings )]
 
     // Specific Routing Numbers
     [EncryptedTextField( "Return Location Routing Number",
@@ -239,6 +248,9 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             // Bank of First Deposit Settings
             public const string BOFDRoutingNumber = "BOFDRoutingNumber";
             public const string TruncationIndicator = "TruncationIndicator";
+
+            // Bundle Header Settings
+            public const string SequenceNumberMinimumBundles = "SequenceNumberMinimumBundles";
 
             // Specific Routing Numbers
             public const string ReturnLocationRoutingNumber = "ReturnLocationRoutingNumber";
@@ -523,6 +535,8 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         {
             var records = new List<Record>();
 
+            var bundleCount = Math.Ceiling( ( decimal ) transactions.Count() / ( decimal ) MaxItemsPerBundle ).ToIntSafe();
+
             for ( int bundleIndex = 0; ( bundleIndex * MaxItemsPerBundle ) < transactions.Count(); bundleIndex++ )
             {
                 var bundleRecords = new List<Record>();
@@ -533,7 +547,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 //
                 // Add the bundle header for this set of transactions.
                 //
-                bundleRecords.Add( GetBundleHeader( options, bundleIndex ) );
+                bundleRecords.Add( GetBundleHeader( options, bundleIndex, bundleCount ) );
 
                 //
                 // Allow subclasses to provide credit detail records (type 61) if they want.
@@ -582,7 +596,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         /// <param name="options">Export options to be used by the component.</param>
         /// <param name="bundleIndex">Number of existing bundle records in the cash letter.</param>
         /// <returns>A BundleHeader record.</returns>
-        protected virtual Records.X937.BundleHeader GetBundleHeader( ExportOptions options, int bundleIndex )
+        protected virtual Records.X937.BundleHeader GetBundleHeader( ExportOptions options, int bundleIndex, int bundleCount )
         {
             string returnLocationRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ReturnLocationRoutingNumber ) );
 
@@ -597,6 +611,14 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 }
 
                 returnLocationRoutingNumber = institutionRoutingNumber;
+            }
+
+            var minimumBundleCount = GetAttributeValue( options.FileFormat, AttributeKey.SequenceNumberMinimumBundles ).AsInteger();
+            var sequenceNumber = ( bundleIndex + 1 ).ToString();
+
+            if( minimumBundleCount == 0 || minimumBundleCount > bundleCount )
+            {
+                sequenceNumber = string.Empty;
             }
 
             var header = new Records.X937.BundleHeader
