@@ -448,7 +448,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             {
                 ID = cashHeaderId.ToString( "D8" ),
                 CollectionTypeIndicator = 01,
-                DestinationRoutingNumber = destinationRoutingNumber.ToStringSafe(),
+                DestinationRoutingNumber = destinationRoutingNumber.ToString( "000000000" ),
                 ClientInstitutionRoutingNumber = institutionRoutingNumber.ToStringSafe(),
                 BusinessDate = options.BusinessDateTime,
                 CreationDateTime = options.ExportDateTime,
