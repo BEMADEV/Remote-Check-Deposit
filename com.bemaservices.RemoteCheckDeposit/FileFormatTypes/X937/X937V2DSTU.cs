@@ -117,22 +117,23 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "1",
         Order = 0,
         Category = Category.BundleHeaderSettings )]
-
-    // Specific Routing Numbers
     [EncryptedTextField( "Return Location Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
         Key = AttributeKey.ReturnLocationRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
-        Order = 0,
-        Category = Category.SpecificRoutingNumberFields )]
+        Order = 1,
+        Category = Category.BundleHeaderSettings )]
+
+    // Specific Routing Numbers
+
     [EncryptedTextField( "Image Creator Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
-        Key = AttributeKey.ReturnLocationRoutingNumber,
+        Key = AttributeKey.ImageCreatorRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = Category.SpecificRoutingNumberFields )]
+        Category = Category.ImageViewDetailSettings )]
 
     // Credit Deposit Settings
     [EnumField( "Credit Record Type",
@@ -216,14 +217,14 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         private static class Category
         {
             public const string BofdFields = "Bank of First Deposit Fields";
-            public const string BundleHeaderSettings = "Bundle Header Settings";
-            public const string CreditDepositSettings = "Credit Deposit Settings";
             public const string DestinationFields = "Destination Fields";
             public const string EceInstitutionFields = "ECE Institution Fields";
             public const string MicrSettings = "MICR Settings";
             public const string OriginFields = "Origin Fields";
             public const string RockSettings = "Rock Settings";
-            public const string SpecificRoutingNumberFields = "Specific Routing Number Fields";
+            public const string BundleHeaderSettings = "Bundle Header (Type 20) Settings";
+            public const string CreditDepositSettings = "Credit Deposit (Type 61) Settings";
+            public const string ImageViewDetailSettings = "Image View Detail (Type 50) Settings";
         }
         #endregion
 
