@@ -108,13 +108,22 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "N",
         Order = 1,
         Category = "Bank of First Deposit Fields" )]
+
+    // Specific Routing Numbers
     [EncryptedTextField( "Return Location Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
         Key = AttributeKey.ReturnLocationRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = "Bank of First Deposit Fields" )]
+        Category = "Specific Routing Number Fields" )]
+    [EncryptedTextField( "Image Creator Routing Number",
+        Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
+        Key = AttributeKey.ReturnLocationRoutingNumber,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 1,
+        Category = "Specific Routing Number Fields" )]
 
     // Credit Deposit Settings
     [EnumField( "Credit Record Type",
@@ -215,7 +224,10 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             // Bank of First Deposit Settings
             public const string BOFDRoutingNumber = "BOFDRoutingNumber";
             public const string TruncationIndicator = "TruncationIndicator";
+
+            // Specific Routing Numbers
             public const string ReturnLocationRoutingNumber = "ReturnLocationRoutingNumber";
+            public const string ImageCreatorRoutingNumber = "ImageCreatorRoutingNumber";
 
             // Credit Deposit Settings
             public const string CreditRecordType = "CreditRecordType";
@@ -602,6 +614,12 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             var creditDetailRecordType = GetAttributeValue( options.FileFormat, AttributeKey.CreditRecordType ).ConvertToEnum<CreditDetailRecordType>( CreditDetailRecordType.None );
             var creditDepositCheckNumber = GetAttributeValue( options.FileFormat, AttributeKey.CreditDepositCheckNumber );
 
+            string imageCreatorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ImageCreatorRoutingNumber ) );
+            if ( imageCreatorRoutingNumber.IsNullOrWhiteSpace() )
+            {
+                imageCreatorRoutingNumber = institutionRoutingNumber;
+            }
+
             var records = new List<Record>();
 
             if ( creditDetailRecordType != CreditDetailRecordType.None )
@@ -654,7 +672,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                         var detail = new ImageViewDetail
                         {
                             ImageIndicator = 1,
-                            ImageCreatorRoutingNumber = institutionRoutingNumber,
+                            ImageCreatorRoutingNumber = imageCreatorRoutingNumber,
                             ImageCreatorDate = options.ExportDateTime,
                             ImageViewFormatIndicator = 0,
                             CompressionAlgorithmIdentifier = 0,
@@ -923,6 +941,13 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 institutionRoutingNumber = originRoutingNumber;
             }
 
+
+            string imageCreatorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ImageCreatorRoutingNumber ) );
+            if ( imageCreatorRoutingNumber.IsNullOrWhiteSpace() )
+            {
+                imageCreatorRoutingNumber = destinationRoutingNumber;
+            }
+
             var institutionSequenceNumber = GetNextItemSequenceNumber().ToString();
             var sequenceNumberJustification = GetAttributeValue( options.FileFormat, AttributeKey.ItemSequenceNumberJustification );
             if ( sequenceNumberJustification == "Left" )
@@ -980,7 +1005,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             var detail = new Records.X937.ImageViewDetail
             {
                 ImageIndicator = 1,
-                ImageCreatorRoutingNumber = destinationRoutingNumber,
+                ImageCreatorRoutingNumber = imageCreatorRoutingNumber,
                 ImageCreatorDate = image.CreatedDateTime ?? options.ExportDateTime,
                 ImageViewFormatIndicator = 0,
                 CompressionAlgorithmIdentifier = 0,
