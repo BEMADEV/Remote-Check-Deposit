@@ -22,68 +22,54 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
     /// Defines the basic functionality of any component that will be exporting using the X9.37
     /// DSTU standard.
     /// </summary>    
-
-    // Origin Settings
-    [TextField( "Origin Name",
-        Description = "The name of the church.",
-        Key = AttributeKey.OriginName,
+    
+    // Organization Settings: BOFD
+    [EncryptedTextField( "BOFD Routing Number",
+        Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
+        Key = AttributeKey.BOFDRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = Category.OriginFields )]
-    [TextField( "Origin Contact Name",
-        Description = "The name of the person the bank will contact if there are issues.",
-        Key = AttributeKey.OriginContactName,
+        Category = Category.Organization_Bofd )]
+    [TextField( "Truncation Indicator",
+        Description = "The Default for this value is 'N', but some banks require 'Y'.",
+        Key = AttributeKey.TruncationIndicator,
         IsRequired = false,
-        DefaultValue = "",
+        DefaultValue = "N",
         Order = 1,
-        Category = Category.OriginFields )]
-    [TextField( "Origin Contact Phone",
-        Description = "The phone number the bank will call if there are issues.",
-        Key = AttributeKey.OriginContactPhone,
-        IsRequired = false,
-        DefaultValue = "",
-        Order = 2,
-        Category = Category.OriginFields )]
-    [EncryptedTextField( "Origin Routing Number",
-        Description = "Your origin routing number.",
-        Key = AttributeKey.OriginRoutingNumber,
-        IsRequired = false,
-        DefaultValue = "",
-        Order = 3,
-        Category = Category.OriginFields )]
+        Category = Category.Organization_Bofd )]
 
-    // Destination Settings
+    // Organization Settings: Destination
     [TextField( "Destination Name",
         Description = "The name of the bank the deposit will be made to.",
         Key = AttributeKey.DestinationName,
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = Category.DestinationFields )]
+        Category = Category.Organization_Destination )]
     [EncryptedTextField( "Destination Routing Number",
         Description = "The destination routing number.",
         Key = AttributeKey.DestinationRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = Category.DestinationFields )]
+        Category = Category.Organization_Destination )]
 
-    // ECE Institution Settings
+    // Organization Settings: ECE Institution
     [EncryptedTextField( "Institution Name",
         Description = "This is defined by your bank, it is typically but not always the same as the origin name.",
         Key = AttributeKey.InstitutionName,
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = Category.EceInstitutionFields )]
+        Category = Category.Organization_EceInstitution )]
     [EncryptedTextField( "ECE Institution Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the origin routing number",
         Key = AttributeKey.InstitutionRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = Category.EceInstitutionFields )]
+        Category = Category.Organization_EceInstitution )]
     [CustomRadioListField( "Item Sequence Number Justification",
         Description = "Whether the Item Sequence Number should be Right or Left Justified. The default for most banks is right-justified.",
         Key = AttributeKey.ItemSequenceNumberJustification,
@@ -91,51 +77,111 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "Right",
         Order = 2,
         IsRequired = true,
-        Category = Category.EceInstitutionFields )]
+        Category = Category.Organization_EceInstitution )]
 
-    // BOFD Settings
-    [EncryptedTextField( "BOFD Routing Number",
-        Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
-        Key = AttributeKey.BOFDRoutingNumber,
+    // Organization Settings: Origin
+    [TextField( "Origin Name",
+        Description = "The name of the church.",
+        Key = AttributeKey.OriginName,
         IsRequired = false,
         DefaultValue = "",
         Order = 0,
-        Category = Category.BofdFields )]
-    [TextField( "Truncation Indicator",
-        Description = "The Default for this value is 'N', but some banks require 'Y'.",
-        Key = AttributeKey.TruncationIndicator,
+        Category = Category.Organization_Origin )]
+    [TextField( "Origin Contact Name",
+        Description = "The name of the person the bank will contact if there are issues.",
+        Key = AttributeKey.OriginContactName,
         IsRequired = false,
-        DefaultValue = "N",
+        DefaultValue = "",
         Order = 1,
-        Category = Category.BofdFields )]
+        Category = Category.Organization_Origin )]
+    [TextField( "Origin Contact Phone",
+        Description = "The phone number the bank will call if there are issues.",
+        Key = AttributeKey.OriginContactPhone,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 2,
+        Category = Category.Organization_Origin )]
+    [EncryptedTextField( "Origin Routing Number",
+        Description = "Your origin routing number.",
+        Key = AttributeKey.OriginRoutingNumber,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 3,
+        Category = Category.Organization_Origin )]
 
-    // Bundle Header Settings
+    // Record Type 01: File Header Settings
+    [TextField( "User Field",
+        Description = "The value stored in Record Type 1 Field 13. Default is Blank.",
+        Key = AttributeKey.FileHeaderUserField,
+        IsRequired = false,
+        DefaultValue = "",
+        Order = 1,
+        Category = Category.Type01_FileHeader )]
+
+    // Record Type 20: Bundle Header Settings
     [IntegerField( "Sequence Number Minimum Bundles",
         Description = "The minimum number of bundles to display a Bundle Sequence Number. This is defined by your bank, but is typically 1. Set to 0 to always leave this field blank.",
         Key = AttributeKey.SequenceNumberMinimumBundles,
         IsRequired = false,
         DefaultValue = "1",
         Order = 0,
-        Category = Category.BundleHeaderSettings )]
+        Category = Category.Type20_BundleHeader )]
     [EncryptedTextField( "Return Location Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
         Key = AttributeKey.ReturnLocationRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = Category.BundleHeaderSettings )]
+        Category = Category.Type20_BundleHeader )]
 
-    // Specific Routing Numbers
+    // Record Type 25: Detail Record Settings
+    [TextField( "Return Acceptance Indicator",
+        Description = "The value to be set on File Type 25 Field 10: Return Acceptance Indicator. The Default is blank.",
+        Key = AttributeKey.ReturnAcceptanceIndicator,
+        DefaultValue = "",
+        Order = 0,
+        IsRequired = false,
+        Category = Category.Type25_DetailRecord )]
+    [IntegerField( "Minimum Check Number Digits",
+        Description = "The minimum check number digits for the On-Us field. If the account number is too long to account for it, leading digits in the account number will be cut off. Any check numbers with less digits will have '0' appended to the front. Default is 3",
+        Key = AttributeKey.MinimumCheckNumberDigits,
+        IsRequired = true,
+        Order = 1,
+        DefaultIntegerValue = 3,
+        Category = Category.Type25_DetailRecord )]
+    [IntegerField( "Maximum Check Number Digits",
+        Description = "The maximum number of digits a check number can have before it is moved from Field 6 On-Us to Field 1 Aux On-Us. Default is blank.",
+        Key = AttributeKey.MaximumCheckNumberDigits,
+        IsRequired = false,
+        Order = 2,
+        Category = Category.Type25_DetailRecord )]
 
+    // Record Type 50: Image View Detail Settings
     [EncryptedTextField( "Image Creator Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
         Key = AttributeKey.ImageCreatorRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
+        Order = 0,
+        Category = Category.Type50_ImageViewDetail )]
+    [BooleanField( "Blank Out Protected Data Fields for Checks",
+        Description = "If true then Record 50 Fields 11-14 will be blanked out instead of zeroed out.",
+        Key = AttributeKey.BlankOutProtectedDataFields,
+        IsRequired = true,
+        DefaultBooleanValue = false,
         Order = 1,
-        Category = Category.ImageViewDetailSettings )]
+        Category = Category.Type50_ImageViewDetail )]
 
-    // Credit Deposit Settings
+    // Record Type 52: Image View Data Settings
+    [BooleanField( "Blank Out Clipping Coordinate Fields for Checks",
+        Description = "If true then Record 52 Fields 10-13 will be blanked out instead of zeroed out.",
+        Key = AttributeKey.BlankOutClippingCoordinateFields,
+        IsRequired = true,
+        DefaultBooleanValue = false,
+        Order = 2,
+        Category = Category.Type52_ImageViewData )]
+
+    // Record Type 61: Credit Deposit Settings
     [EnumField( "Credit Record Type",
         Description = "What type of credit detail deposit record should be included if any. Type 61.A is an alternate version of Type 61 with a RecordUsageIndicator field.",
         Key = AttributeKey.CreditRecordType,
@@ -143,62 +189,47 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         Order = 0,
         EnumSourceType = typeof( CreditDetailRecordType ),
         DefaultEnumValue = ( int ) CreditDetailRecordType.None,
-        Category = Category.CreditDepositSettings )]
+        Category = Category.Type61_CreditDeposit )]
     [EncryptedTextField( "Payor Bank Routing Number",
         Description = "This is defined by your bank, it is typically but not always the same as the ECE Institution routing number",
         Key = AttributeKey.PayorBankRoutingNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 1,
-        Category = Category.CreditDepositSettings )]
+        Category = Category.Type61_CreditDeposit )]
     [EncryptedTextField( "On-Us Account Number",
         Description = "This is defined by your bank, it is typically but not always the same as the origin routing number",
         Key = AttributeKey.OnUsAccountNumber,
         IsRequired = false,
         DefaultValue = "",
         Order = 2,
-        Category = Category.CreditDepositSettings )]
+        Category = Category.Type61_CreditDeposit )]
     [IntegerField( "Credit Deposit Check Number",
         Description = "The check number to be appended onto the end of File Type 61 Field 5: On-Us. The Default is 20.",
         Key = AttributeKey.CreditDepositCheckNumber,
         IsRequired = false,
         DefaultValue = "20",
         Order = 3,
-        Category = Category.CreditDepositSettings )]
+        Category = Category.Type61_CreditDeposit )]
     [IntegerField( "Source of Work Code",
         Description = "The Source Of Work code represented by File Type 61 Field 10: On-Us. The Default is blank.",
         Key = AttributeKey.SourceOfWorkCode,
         IsRequired = false,
         DefaultValue = "",
         Order = 4,
-        Category = Category.CreditDepositSettings )]
+        Category = Category.Type61_CreditDeposit )]
     [CodeEditorField( "Deposit Slip Template",
         Description = "The template for the deposit slip that will be generated. <span class='tip tip-lava'></span>",
         Key = AttributeKey.DepositSlipTemplate,
         EditorMode = CodeEditorMode.Lava,
         Order = 5,
         IsRequired = false,
-        Category = Category.CreditDepositSettings,
+        Category = Category.Type61_CreditDeposit,
         DefaultValue = @"Customer: {{ FileFormat | Attribute:'OriginName' }}
 CICL-{{ FileFormat | Attribute:'AccountNumber' }}
 Account: {{ FileFormat | Attribute:'AccountNumber' }}
 Amount: {{ Amount }}
-ItemCount: {{ ItemCount }}" )]
-
-    // MICR Settings
-    [IntegerField( "Minimum Check Number Digits",
-        Description = "The minimum check number digits for the On-Us field. If the account number is too long to account for it, leading digits in the account number will be cut off. Any check numbers with less digits will have '0' appended to the front. Default is 3",
-        Key = AttributeKey.MinimumCheckNumberDigits,
-        IsRequired = true,
-        Order = 0,
-        DefaultIntegerValue = 3,
-        Category = Category.MicrSettings )]
-    [IntegerField( "Maximum Check Number Digits",
-        Description = "The maximum number of digits a check number can have before it is moved from Field 6 On-Us to Field 1 Aux On-Us. Default is blank.",
-        Key = AttributeKey.MaximumCheckNumberDigits,
-        IsRequired = false,
-        Order = 1,
-        Category = Category.MicrSettings )]
+ItemCount: {{ ItemCount }}" )]    
 
     // Rock Settings
     [BooleanField( "Test Mode",
@@ -234,61 +265,73 @@ Account: {{ FileFormat | Attribute:'AccountNumber' }}
 Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
     public abstract class X937V2DSTU : FileFormatTypeComponent
     {
-        #region Attribute Keys
+        #region Category Keys
         private static class Category
         {
-            public const string BofdFields = "Bank of First Deposit Fields";
-            public const string DestinationFields = "Destination Fields";
-            public const string EceInstitutionFields = "ECE Institution Fields";
-            public const string MicrSettings = "MICR Settings";
-            public const string OriginFields = "Origin Fields";
+            public const string Organization_Bofd = "Organization Settings: Bank of First Deposit";
+            public const string Organization_Destination = "Organization Settings: Destination";
+            public const string Organization_EceInstitution = "Organization Settings: ECE Institution";
+            public const string Organization_Origin = "Organization Settings: Origin";
+
+            public const string Type01_FileHeader = "Record Type 01: File Header Settings";
+            public const string Type20_BundleHeader = "Record Type 20: Bundle Header Settings";
+            public const string Type25_DetailRecord = "Record Type 25: Detail Record Settings";
+            public const string Type50_ImageViewDetail = "Record Type 50: Image View Detail Settings";
+            public const string Type52_ImageViewData = "Record Type 52: Image View Data Settings";
+            public const string Type61_CreditDeposit = "Record Type 61: Credit Deposit Settings";
+
             public const string RockSettings = "Rock Settings";
-            public const string BundleHeaderSettings = "Bundle Header (Type 20) Settings";
-            public const string CreditDepositSettings = "Credit Deposit (Type 61) Settings";
-            public const string ImageViewDetailSettings = "Image View Detail (Type 50) Settings";
         }
         #endregion
 
         #region Attribute Keys
         private static class AttributeKey
         {
-            // Origin Settings
+            // Organization Settings: Bank of First Deposit
+            public const string BOFDRoutingNumber = "BOFDRoutingNumber";
+            public const string TruncationIndicator = "TruncationIndicator";
+
+            // Organization Settings: Destination
+            public const string DestinationName = "DestinationName";
+            public const string DestinationRoutingNumber = "DestinationRoutingNumber";
+
+            // Organization Settings: ECE Institution
+            public const string InstitutionName = "InstitutionName";
+            public const string InstitutionRoutingNumber = "InstitutionRoutingNumber";
+            public const string ItemSequenceNumberJustification = "ItemSequenceNumberJustification";
+
+            // Organization Settings: Origin
             public const string OriginName = "OriginName";
             public const string OriginContactName = "OriginContactName";
             public const string OriginContactPhone = "OriginContactPhone";
             public const string OriginRoutingNumber = "OriginRoutingNumber";
 
-            // Destination Settings
-            public const string DestinationName = "DestinationName";
-            public const string DestinationRoutingNumber = "DestinationRoutingNumber";
+            // Record Type 01: File Header Settings
+            public const string FileHeaderUserField = "FileHeaderUserField";
 
-            // ECE Institution Settings
-            public const string InstitutionName = "InstitutionName";
-            public const string InstitutionRoutingNumber = "InstitutionRoutingNumber";
-            public const string ItemSequenceNumberJustification = "ItemSequenceNumberJustification";
-
-            // Bank of First Deposit Settings
-            public const string BOFDRoutingNumber = "BOFDRoutingNumber";
-            public const string TruncationIndicator = "TruncationIndicator";
-
-            // Bundle Header Settings
+            // Record Type 20: Bundle Header Settings
             public const string SequenceNumberMinimumBundles = "SequenceNumberMinimumBundles";
             public const string ReturnLocationRoutingNumber = "ReturnLocationRoutingNumber";
 
-            // Image View Detail Numbers
-            public const string ImageCreatorRoutingNumber = "ImageCreatorRoutingNumber";
+            // Record Type 25: Detail Record Settings
+            public const string ReturnAcceptanceIndicator = "ReturnAcceptanceIndicator";
+            public const string MinimumCheckNumberDigits = "MinimumCheckNumberDigits";
+            public const string MaximumCheckNumberDigits = "MaximumCheckNumberDigits";
 
-            // Credit Deposit Settings
+            // Record Type 50: Image View Detail Settings
+            public const string ImageCreatorRoutingNumber = "ImageCreatorRoutingNumber";
+            public const string BlankOutProtectedDataFields = "BlankOutProtectedDataFields";
+
+            // Record Type 52: Image View Data Settings
+            public const string BlankOutClippingCoordinateFields = "BlankOutClippingCoordinateFields";
+
+            // Record Type 61: Credit Deposit Settings
             public const string CreditRecordType = "CreditRecordType";
             public const string PayorBankRoutingNumber = "PayorBankRoutingNumber";
             public const string OnUsAccountNumber = "OnUsAccountNumber";
             public const string CreditDepositCheckNumber = "CreditDepositCheckNumber";
             public const string SourceOfWorkCode = "SourceOfWorkCode";
             public const string DepositSlipTemplate = "DepositSlipTemplate";
-
-            // MICR Settings
-            public const string MinimumCheckNumberDigits = "MinimumCheckNumberDigits";
-            public const string MaximumCheckNumberDigits = "MaximumCheckNumberDigits";
 
             // Rock Settings
             public const string TestMode = "TestMode";
@@ -431,6 +474,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         {
             string destinationRoutingNumber = GetValueWithFallback( options, AttributeKey.DestinationRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             string originRoutingNumber = GetValueWithFallback( options, AttributeKey.OriginRoutingNumber, AttributeKey.ObsoleteAccountNumber );
+            string userField = GetAttributeValue( options.FileFormat, AttributeKey.FileHeaderUserField ).ToStringSafe();
 
             var header = new Records.X937.FileHeader
             {
@@ -444,7 +488,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 ImmediateOriginName = GetAttributeValue( options.FileFormat, AttributeKey.OriginName ),
                 FileIdModifier = "1", // TODO: Need some way to track this and reset each day.
                 CountryCode = "US", /* Should be safe, X9.37 is only used in the US as far as I know. */
-                UserField = string.Empty
+                UserField = userField
             };
 
             return header;
@@ -576,7 +620,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
 
                 //
                 // Allow subclasses to provide credit detail records (type 61) if they want.
-                //
+                //              
                 bundleRecords.AddRange( GetCreditDetailRecords( options, bundleIndex, bundleTransactions ) );
 
                 //
@@ -875,16 +919,17 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         /// <param name="options">Export options to be used by the component.</param>
         /// <param name="transaction">The transaction to be deposited.</param>
         /// <returns>A collection of records.</returns>
-        protected virtual List<Record> GetItemRecords( ExportOptions options, FinancialTransaction transaction )
+        protected virtual List<Record> GetItemRecords( ExportOptions options, FinancialTransaction transaction)
         {
             var records = new List<Record>();
+            var sequenceNumber = GetNextItemSequenceNumber().ToString( "000000000000000" );
 
-            records.AddRange( GetItemDetailRecords( options, transaction ) );
+            records.AddRange( GetItemDetailRecords( options, transaction, sequenceNumber ) );
 
             try
             {
-                records.AddRange( GetImageRecords( options, transaction, transaction.Images.Take( 1 ).First(), true ) );
-                records.AddRange( GetImageRecords( options, transaction, transaction.Images.Skip( 1 ).Take( 1 ).First(), false ) );
+                records.AddRange( GetImageRecords( options, transaction, transaction.Images.Take( 1 ).First(), true, sequenceNumber ) );
+                records.AddRange( GetImageRecords( options, transaction, transaction.Images.Skip( 1 ).Take( 1 ).First(), false, sequenceNumber ) );
             }
             catch ( Exception ex )
             {
@@ -900,15 +945,17 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         /// <param name="options">Export options to be used by the component.</param>
         /// <param name="transaction">The transaction being deposited.</param>
         /// <returns>A collection of records.</returns>
-        protected virtual List<Record> GetItemDetailRecords( ExportOptions options, FinancialTransaction transaction )
+        protected virtual List<Record> GetItemDetailRecords( ExportOptions options, FinancialTransaction transaction, string sequenceNumber = null )
         {
             string originRoutingNumber = GetValueWithFallback( options, AttributeKey.OriginRoutingNumber, AttributeKey.ObsoleteAccountNumber );
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             string bofdRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.BOFDRoutingNumber ) );
-            var sequenceNumber = GetNextItemSequenceNumber().ToString( "000000000000000" );
+            string onUsAccountNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.OnUsAccountNumber ) );
 
             int minimumCheckNumberDigits = GetAttributeValue( options.FileFormat, AttributeKey.MinimumCheckNumberDigits ).AsIntegerOrNull() ?? 3;
             int? maximumCheckNumberDigits = GetAttributeValue( options.FileFormat, AttributeKey.MaximumCheckNumberDigits ).AsIntegerOrNull();
+
+            var returnAcceptanceIndicator = GetAttributeValue( options.FileFormat, AttributeKey.ReturnAcceptanceIndicator ).SubstringSafe( 0, 1 );
 
             if ( bofdRoutingNumber.IsNullOrWhiteSpace() )
             {
@@ -920,7 +967,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 bofdRoutingNumber = institutionRoutingNumber;
             }
 
-            var institutionSequenceNumber = sequenceNumber.ToString();
+            var institutionSequenceNumber = sequenceNumber;
             var sequenceNumberJustification = GetAttributeValue( options.FileFormat, AttributeKey.ItemSequenceNumberJustification );
             if ( sequenceNumberJustification == "Left" )
             {
@@ -986,6 +1033,11 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 CheckDetailRecordAddendumCount = 1
             };
 
+            if ( returnAcceptanceIndicator.IsNotNullOrWhiteSpace() )
+            {
+                detail.ElectronicReturnAcceptanceIndicator = returnAcceptanceIndicator;
+            }
+
             //
             // Get the Addendum A record (type 26).
             //
@@ -996,10 +1048,15 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 BankOfFirstDepositRoutingNumber = bofdRoutingNumber,
                 BankOfFirstDepositBusinessDate = options.BusinessDateTime,
                 TruncationIndicator = truncationIndicator,
-                BankOfFirstDepositItemSequenceNumber = sequenceNumber.ToString( "000000000000000" ),
+                BankOfFirstDepositItemSequenceNumber = sequenceNumber,
                 BankOfFirstDepositConversionIndicator = "2",
                 BankOfFirstDepositCorrectionIndicator = "0"
             };
+
+            if ( onUsAccountNumber.IsNotNullOrWhiteSpace() )
+            {
+                detailA.BankOfFirstDepositAccountNumber = onUsAccountNumber.Right( 18 );
+            }
 
             return new List<Record> { detail, detailA };
         }
@@ -1012,8 +1069,13 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         /// <param name="image">The check image scanned by the scanning application.</param>
         /// <param name="isFront">if set to <c>true</c> [is front].</param>
         /// <returns>A collection of records.</returns>
-        protected virtual List<Record> GetImageRecords( ExportOptions options, FinancialTransaction transaction, FinancialTransactionImage image, bool isFront )
+        protected virtual List<Record> GetImageRecords( ExportOptions options, FinancialTransaction transaction, FinancialTransactionImage image, bool isFront, string sequenceNumber = null )
         {
+            var checkEndorsement = GetAttributeValue( options.FileFormat, AttributeKey.CheckEndorsementTemplate );
+            var enableEndorsement = GetAttributeValue( options.FileFormat, AttributeKey.EnableDigitalEndorsement ).AsBoolean();
+            var blankOutProtectedDataFields = GetAttributeValue( options.FileFormat, AttributeKey.BlankOutProtectedDataFields ).AsBoolean();
+            var blankOutClippingFields = GetAttributeValue( options.FileFormat, AttributeKey.BlankOutClippingCoordinateFields ).AsBoolean();
+
             string destinationRoutingNumber = GetValueWithFallback( options, AttributeKey.DestinationRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
             string originRoutingNumber = GetValueWithFallback( options, AttributeKey.OriginRoutingNumber, AttributeKey.ObsoleteAccountNumber );
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
@@ -1022,23 +1084,18 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 institutionRoutingNumber = originRoutingNumber;
             }
 
-
             string imageCreatorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ImageCreatorRoutingNumber ) );
             if ( imageCreatorRoutingNumber.IsNullOrWhiteSpace() )
             {
                 imageCreatorRoutingNumber = destinationRoutingNumber;
             }
 
-            var institutionSequenceNumber = GetNextItemSequenceNumber().ToString();
+            var institutionSequenceNumber = sequenceNumber;
             var sequenceNumberJustification = GetAttributeValue( options.FileFormat, AttributeKey.ItemSequenceNumberJustification );
             if ( sequenceNumberJustification == "Left" )
             {
                 institutionSequenceNumber = institutionSequenceNumber.PadRight( 15, ' ' ).Left( 15 );
             }
-
-            var checkEndorsement = GetAttributeValue( options.FileFormat, AttributeKey.CheckEndorsementTemplate );
-            var enableEndorsement = GetAttributeValue( options.FileFormat, AttributeKey.EnableDigitalEndorsement ).AsBoolean();
-
 
             //
             // If endorsement, add to back of image
@@ -1093,12 +1150,16 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 SideIndicator = isFront ? 0 : 1,
                 ViewDescriptor = 0,
                 DigitalSignatureIndicator = 0,
-                DataSize = ( int ) tiffImageBytes.Length,
-                DigitalSignatureMethod = 0,
-                SecurityKeySize = 00000,
-                StartOfProtectedData = 0000000,
-                LengthOfProtectedData = 0000000
+                DataSize = ( int ) tiffImageBytes.Length
             };
+
+            if ( !blankOutProtectedDataFields )
+            {
+                detail.DigitalSignatureMethod = 0;
+                detail.SecurityKeySize = 00000;
+                detail.StartOfProtectedData = 0000000;
+                detail.LengthOfProtectedData = 0000000;
+            }
 
             //
             // Get the Image View Data record (type 52).
@@ -1109,12 +1170,16 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 BundleBusinessDate = options.BusinessDateTime,
                 ClientInstitutionItemSequenceNumber = institutionSequenceNumber,
                 ClippingOrigin = 0,
-                ClippingCoordinateH1 = 0000,
-                ClippingCoordinateH2 = 0000,
-                ClippingCoordinateV1 = 0000,
-                ClippingCoordinateV2 = 0000,
                 ImageData = tiffImageBytes
             };
+
+            if ( !blankOutClippingFields )
+            {
+                data.ClippingCoordinateH1 = 0000;
+                data.ClippingCoordinateH2 = 0000;
+                data.ClippingCoordinateV1 = 0000;
+                data.ClippingCoordinateV2 = 0000;
+            }
 
             return new List<Record> { detail, data };
         }
