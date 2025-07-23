@@ -787,6 +787,25 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                     records.Add( creditReconciliation );
                 }
 
+                if ( creditDetailRecordType == CreditDetailRecordType.Type25 )
+                {
+                    CheckDetail creditDetail = new CheckDetail
+                    {
+                        AuxiliaryOnUs = string.Empty,
+                        ExternalProcessingCode = string.Empty,
+                        PayorBankRoutingNumber = payorRoutingNumber.Substring( 0, 8 ),
+                        PayorBankRoutingNumberCheckDigit = payorRoutingNumber.Substring( 8, 1 ),
+                        OnUs = onUsAccountNumber + "/" + creditDepositCheckNumber,
+                        ItemAmount = itemAmount,
+                        ClientInstitutionItemSequenceNumber = sequenceNumber, // A number assigned by you that uniquely identifies the item in the cash letter
+                        DocumentationTypeIndicator = "G", // Field value must be "G" - Meaning there are 2 images present.
+                        BankOfFirstDepositIndicator = "U",
+                        CheckDetailRecordAddendumCount = 00
+                    };
+
+                    records.Add( creditDetail );
+                }
+
                 for ( int i = 0; i < 2; i++ )
                 {
                     using ( var ms = GetDepositSlipImage( options, itemAmount, i == 0, transactions ) )
@@ -1257,6 +1276,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
     {
         None = 0,
         Type61 = 1,
-        Type61A = 2
+        Type61A = 2,
+        Type25 = 3
     }
 }
