@@ -1,0 +1,14 @@
+{
+    "organization": {
+        "name": "BEMA Software Services",
+        "code": "com.bemaservices"
+    },
+    "name": "Remote Check Deposit",
+    "version": "1.1.10",
+    "include": {
+        "com.bemaservices.RemoteCheckDeposit/bin/Release/net472/com.bemaservices.RemoteCheckDeposit.dll": "Bin/",
+        "com.bemaservices.RemoteCheckDeposit.Obsidian/dist/**": "Plugins/com_bemaservices/RemoteCheckDeposit",
+        "WebForms/**": "Plugins/com_bemaservices/RemoteCheckDeposit"
+    },
+    "exclude": []
+}

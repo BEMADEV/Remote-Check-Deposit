@@ -1,0 +1,18 @@
+{
+  "lockFileVersion": 1,
+  "versions": [
+    {
+      "version": "1.1.10",
+      "installedFiles": [
+        "Bin/com.bemaservices.RemoteCheckDeposit.dll",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/.gitignore",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/FileFormatDetail.ascx",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/FileFormatDetail.ascx.cs",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/FileFormatList.ascx",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/FileFormatList.ascx.cs",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/RemoteDepositExport.ascx",
+        "Plugins/com_bemaservices/RemoteCheckDeposit/RemoteDepositExport.ascx.cs"
+      ]
+    }
+  ]
+}

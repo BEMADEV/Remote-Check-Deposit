@@ -12,7 +12,6 @@ using Rock.Web.UI.Controls;
 
 using com.bemaservices.RemoteCheckDeposit.Model;
 using System.Drawing;
-using System.Windows.Media.Imaging;
 
 namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
 {
