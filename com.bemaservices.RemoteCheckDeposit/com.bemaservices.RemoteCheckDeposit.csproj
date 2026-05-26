@@ -97,6 +97,7 @@
     <Compile Include="FileFormatTypes\X9100\CommerceBank.cs" />
     <Compile Include="FileFormatTypes\X937\FarmersAndMerchants.cs" />
     <Compile Include="FileFormatTypes\X937\FifthThirdBank.cs" />
+    <Compile Include="FileFormatTypes\X937\FirstCitizensBank.cs" />
     <Compile Include="FileFormatTypes\X937\FrostBank.cs" />
     <Compile Include="FileFormatTypes\X937\MandT.cs" />
     <Compile Include="FileFormatTypes\X937\PNC.cs" />
