@@ -69,12 +69,19 @@ namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
         DefaultValue = "",
         Order = 1,
         Category = Category.Organization_EceInstitution )]
+    [BooleanField( "Preserve Leading Zeros",
+        Description = "Whether to preserve leading zeros on ECE Institution Routing Numbers",
+        Key = AttributeKey.PreserveLeadingZero_InstitutionRoutingNumber,
+        IsRequired = true,
+        DefaultBooleanValue = false,
+        Order = 2,
+        Category = Category.Organization_EceInstitution )]
     [CustomRadioListField( "Item Sequence Number Justification",
         Description = "Whether the Item Sequence Number should be Right or Left Justified. The default for most banks is right-justified.",
         Key = AttributeKey.ItemSequenceNumberJustification,
         ListSource = "Right,Left",
         DefaultValue = "Right",
-        Order = 2,
+        Order = 3,
         IsRequired = true,
         Category = Category.Organization_EceInstitution )]
 
@@ -297,6 +304,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             // Organization Settings: ECE Institution
             public const string InstitutionName = "InstitutionName";
             public const string InstitutionRoutingNumber = "InstitutionRoutingNumber";
+            public const string PreserveLeadingZero_InstitutionRoutingNumber = "PreserveLeadingZero_InstitutionRoutingNumber";
             public const string ItemSequenceNumberJustification = "ItemSequenceNumberJustification";
 
             // Organization Settings: Origin
@@ -533,9 +541,16 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         protected virtual Records.X937.CashLetterHeader GetCashLetterHeaderRecord( ExportOptions options )
         {
             var destinationRoutingNumber = int.Parse( GetValueWithFallback( options, AttributeKey.DestinationRoutingNumber, AttributeKey.ObsoleteRoutingNumber ) );
-            var institutionRoutingNumber = int.Parse( GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteAccountNumber ) );
+            var institutionRoutingNumberRaw = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteAccountNumber );
+            var preserveLeadingZeros = GetAttributeValue( options.FileFormat, AttributeKey.PreserveLeadingZero_InstitutionRoutingNumber ).AsBoolean();
             var contactName = GetAttributeValue( options.FileFormat, AttributeKey.OriginContactName );
             var contactPhone = GetAttributeValue( options.FileFormat, AttributeKey.OriginContactPhone );
+
+            // When preserveLeadingZeros is true, keep the routing number as a string to preserve leading zeros.
+            // Otherwise, parse as int and convert back (which strips leading zeros).
+            var clientInstitutionRoutingNumber = preserveLeadingZeros
+                ? institutionRoutingNumberRaw
+                : int.Parse( institutionRoutingNumberRaw ).ToStringSafe();
 
             int cashHeaderId = GetSystemSetting( SystemSettingNextCashHeaderId ).AsIntegerOrNull() ?? 0;
 
@@ -544,7 +559,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                 ID = cashHeaderId.ToString( "D8" ),
                 CollectionTypeIndicator = 01,
                 DestinationRoutingNumber = destinationRoutingNumber.ToString( "000000000" ),
-                ClientInstitutionRoutingNumber = institutionRoutingNumber.ToStringSafe(),
+                ClientInstitutionRoutingNumber = clientInstitutionRoutingNumber,
                 BusinessDate = options.BusinessDateTime,
                 CreationDateTime = options.ExportDateTime,
                 RecordTypeIndicator = "I",
