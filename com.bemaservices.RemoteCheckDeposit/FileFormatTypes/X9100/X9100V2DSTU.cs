@@ -12,6 +12,7 @@ using Rock.Web.UI.Controls;
 
 using com.bemaservices.RemoteCheckDeposit.Model;
 using System.Drawing;
+using com.bemaservices.RemoteCheckDeposit.Records.X9100;
 
 namespace com.bemaservices.RemoteCheckDeposit.FileFormatTypes
 {
@@ -732,12 +733,29 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
         {
             string originRoutingNumber = GetValueWithFallback( options, AttributeKey.OriginRoutingNumber, AttributeKey.ObsoleteAccountNumber );
             string institutionRoutingNumber = GetValueWithFallback( options, AttributeKey.InstitutionRoutingNumber, AttributeKey.ObsoleteRoutingNumber );
-            //var creditDetailRecordType = GetAttributeValue( options.FileFormat, AttributeKey.CreditRecordType ).ConvertToEnum<CreditDetailRecordType>( CreditDetailRecordType.None );
-            //var creditDepositCheckNumber = GetAttributeValue( options.FileFormat, AttributeKey.CreditDepositCheckNumber );
+            var creditDetailRecordType = GetAttributeValue( options.FileFormat, AttributeKey.CreditRecordType ).ConvertToEnum<CreditDetailRecordType>( CreditDetailRecordType.None );
+            var creditDepositCheckNumber = GetAttributeValue( options.FileFormat, AttributeKey.CreditDepositCheckNumber );
+            var sourceOfWorkCode = GetAttributeValue( options.FileFormat, AttributeKey.SourceOfWorkCode ).AsIntegerOrNull();
+
+            string imageCreatorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.ImageCreatorRoutingNumber ) );
+            if ( imageCreatorRoutingNumber.IsNullOrWhiteSpace() )
+            {
+                imageCreatorRoutingNumber = institutionRoutingNumber;
+            }
+
+            string payorRoutingNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.PayorBankRoutingNumber ) );
+            if ( payorRoutingNumber.IsNullOrWhiteSpace() )
+            {
+                payorRoutingNumber = institutionRoutingNumber;
+            }
+
+            string onUsAccountNumber = Rock.Security.Encryption.DecryptString( GetAttributeValue( options.FileFormat, AttributeKey.OnUsAccountNumber ) );
+            if ( onUsAccountNumber.IsNullOrWhiteSpace() )
+            {
+                onUsAccountNumber = originRoutingNumber;
+            }
 
             var records = new List<Record>();
-
-            /*
             if ( creditDetailRecordType != CreditDetailRecordType.None )
             {
                 var itemAmount = transactions.Sum( p => p.TotalAmount );
@@ -749,14 +767,20 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                     {
                         AuxiliaryOnUs = string.Empty,
                         ExternalProcessingCode = string.Empty,
-                        PayorRoutingNumber = institutionRoutingNumber,
-                        CreditAccountNumber = originRoutingNumber + "/" + creditDepositCheckNumber,
+                        PayorRoutingNumber = payorRoutingNumber,
+                        CreditAccountNumber = onUsAccountNumber + "/" + creditDepositCheckNumber,
                         Amount = itemAmount,
                         InstitutionItemSequenceNumber = sequenceNumber, // A number assigned by you that uniquely identifies the item in the cash letter
                         DocumentTypeIndicator = "G", // Field value must be "G" - Meaning there are 2 images present.
                         DebitCreditIndicator = "2"
 
                     };
+
+                    if ( sourceOfWorkCode != null )
+                    {
+                        creditDetail.SourceOfWorkCode = sourceOfWorkCode.ToStringSafe();
+                    }
+
                     records.Add( creditDetail );
                 }
 
@@ -778,6 +802,25 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                     records.Add( creditReconciliation );
                 }
 
+                if ( creditDetailRecordType == CreditDetailRecordType.Type25 )
+                {
+                    CheckDetail creditDetail = new CheckDetail
+                    {
+                        AuxiliaryOnUs = string.Empty,
+                        ExternalProcessingCode = string.Empty,
+                        PayorBankRoutingNumber = payorRoutingNumber.Substring( 0, 8 ),
+                        PayorBankRoutingNumberCheckDigit = payorRoutingNumber.Substring( 8, 1 ),
+                        OnUs = onUsAccountNumber + "/" + creditDepositCheckNumber,
+                        ItemAmount = itemAmount,
+                        ClientInstitutionItemSequenceNumber = sequenceNumber, // A number assigned by you that uniquely identifies the item in the cash letter
+                        DocumentationTypeIndicator = "G", // Field value must be "G" - Meaning there are 2 images present.
+                        BankOfFirstDepositIndicator = "U",
+                        CheckDetailRecordAddendumCount = 00
+                    };
+
+                    records.Add( creditDetail );
+                }
+
                 for ( int i = 0; i < 2; i++ )
                 {
                     using ( var ms = GetDepositSlipImage( options, itemAmount, i == 0, transactions ) )
@@ -788,7 +831,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                         var detail = new ImageViewDetail
                         {
                             ImageIndicator = 1,
-                            ImageCreatorRoutingNumber = institutionRoutingNumber,
+                            ImageCreatorRoutingNumber = imageCreatorRoutingNumber,
                             ImageCreatorDate = options.ExportDateTime,
                             ImageViewFormatIndicator = 0,
                             CompressionAlgorithmIdentifier = 0,
@@ -815,7 +858,6 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
                     }
                 }
             }
-            */
 
             return records;
         }
@@ -832,7 +874,7 @@ Date: {{ BusinessDate | Date:'M/d/yyyy' }}" )]
             var bitmap = new System.Drawing.Bitmap( 1200, 550 );
             var g = System.Drawing.Graphics.FromImage( bitmap );
 
-            var depositSlipTemplate = ""; // GetAttributeValue( options.FileFormat, AttributeKey.DepositSlipTemplate );
+            var depositSlipTemplate = GetAttributeValue( options.FileFormat, AttributeKey.DepositSlipTemplate );
             var mergeFields = new Dictionary<string, object>
             {
                 { "FileFormat", options.FileFormat },
