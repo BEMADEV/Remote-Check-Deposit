@@ -21,8 +21,8 @@ namespace com.bemaservices.RemoteCheckDeposit.Records.X9100
         /// <summary>
         /// Field 4 Size 9 IntegerField
         /// </summary>
-        [IntegerField( 4, 9 )]
-        public int EceInstitutionRoutingNumber { get; set; }
+        [TextField( 4, 9 )]
+        public string EceInstitutionRoutingNumber { get; set; }
 
         /// <summary>
         /// Field 5 DateField
